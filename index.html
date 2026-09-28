@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Candy Crush - Ad-Free Edition</title>
+    <meta name="description" content="Authentic Candy Crush match-3 clone with zero adverts, unlimited lives, and full mobile touch support.">
+    <meta name="theme-color" content="#210433">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main class="game-viewport">
+        <!-- Top Header -->
+        <header class="game-header">
+            <div class="level-badge">
+                <h1 id="current-level-title">Level 1</h1>
+                <span id="target-desc">Target: 1,200 pts</span>
+            </div>
+            <div class="header-actions">
+                <button id="btn-levels" class="icon-btn" title="Choose Level" aria-label="Level Select">🗺️</button>
+                <button id="btn-restart" class="icon-btn" title="Restart Level" aria-label="Restart">🔄</button>
+                <button id="btn-sound" class="icon-btn" title="Toggle Sound" aria-label="Sound">🔊</button>
+                <button id="btn-fullscreen" class="icon-btn" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+            </div>
+        </header>
+
+        <!-- HUD Bar (Moves & Score) -->
+        <section class="hud-bar" aria-label="Game Stats">
+            <div class="hud-item">
+                <span class="hud-label">Moves</span>
+                <span id="moves-val" class="hud-value">20</span>
+            </div>
+
+            <div class="hud-item">
+                <span class="hud-label">Score</span>
+                <span id="score-val" class="hud-value">0</span>
+                <div class="star-progress-container" title="Target Progress">
+                    <div id="star-fill" class="star-fill"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Board Arena -->
+        <div class="board-container">
+            <div id="board" class="board" role="grid" aria-label="Candy Board"></div>
+            <div id="particles-container"></div>
+            <div id="announcement" class="announcement-banner">SWEET!</div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="game-footer">
+            <span class="no-ads-badge">🛡️ 100% Ad-Free</span>
+            <div class="high-score-box">
+                Best: <span id="high-score-val">0</span>
+            </div>
+        </footer>
+
+        <!-- Win / Game Over Modal -->
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <div class="modal-card">
+                <h2 id="modal-title">SWEET VICTORY!</h2>
+                <div id="modal-score" class="modal-score">Final Score: 0</div>
+                <div class="modal-actions">
+                    <button id="modal-btn-retry" class="btn-secondary">Replay</button>
+                    <button id="modal-btn-next" class="btn-primary">Next Level</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Selector Modal -->
+        <div id="levels-modal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <h2>SELECT LEVEL</h2>
+                <div class="level-grid">
+                    <button class="level-pick-btn" data-level="1">1</button>
+                    <button class="level-pick-btn" data-level="2">2</button>
+                    <button class="level-pick-btn" data-level="3">3</button>
+                    <button class="level-pick-btn" data-level="4">4</button>
+                    <button class="level-pick-btn" data-level="5">5</button>
+                    <button class="level-pick-btn" data-level="6">6</button>
+                </div>
+                <button id="close-levels-modal" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="audio.js"></script>
+    <script src="candies.js"></script>
+    <script src="game.js"></script>
+    <script>
+        // Register Service Worker for offline play
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
+        }
+    </script>
+</body>
+</html>
