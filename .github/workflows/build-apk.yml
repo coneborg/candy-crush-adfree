@@ -1,0 +1,61 @@
+name: Build Candy Crush APK
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build APK via Bubblewrap
+        run: |
+          npm install -g @bubblewrap/cli
+          # Initialize Bubblewrap project without interactive prompts
+          bubblewrap init --manifest="https://coneborg.github.io/candy-crush-adfree/manifest.json" --directory="twa-project"
+          cd twa-project
+          # Generate debug keystore for signing
+          keytool -genkey -v -keystore android.keystore -alias candy -keyalg RSA -keysize 2048 -validity 10000 -storepass candycrush -keypass candycrush -dname "CN=CandyCrush, OU=Game, O=Adfree, L=Cardiff, S=Wales, C=GB"
+          bubblewrap build --signingKeyPath=android.keystore --signingKeyAlias=candy --keyPassword=candycrush --keyStorePassword=candycrush
+
+      - name: Rename APK
+        run: |
+          find twa-project -name "*.apk" -exec cp {} ./CandyCrush-AdFree.apk \;
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CandyCrush-AdFree-APK
+          path: ./CandyCrush-AdFree.apk
+
+      - name: Create Release with APK
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master'
+        with:
+          tag_name: v1.0.0
+          name: Candy Crush Ad-Free v1.0.0
+          body: |
+            🍬 **Candy Crush Ad-Free Standalone Android APK**
+            - Sideload directly to Android phone
+            - 100% offline, zero ads, unlimited lives
+          files: ./CandyCrush-AdFree.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
