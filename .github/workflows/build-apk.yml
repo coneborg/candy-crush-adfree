@@ -1,4 +1,4 @@
-name: Build Candy Crush APK
+name: Build Standalone Candy Crush APK
 
 on:
   push:
@@ -12,33 +12,29 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Build APK via Bubblewrap
+      - name: Build APK via Capacitor
         run: |
-          npm install -g @bubblewrap/cli
-          # Initialize Bubblewrap project without interactive prompts
-          bubblewrap init --manifest="https://coneborg.github.io/candy-crush-adfree/manifest.json" --directory="twa-project"
-          cd twa-project
-          # Generate debug keystore for signing
-          keytool -genkey -v -keystore android.keystore -alias candy -keyalg RSA -keysize 2048 -validity 10000 -storepass candycrush -keypass candycrush -dname "CN=CandyCrush, OU=Game, O=Adfree, L=Cardiff, S=Wales, C=GB"
-          bubblewrap build --signingKeyPath=android.keystore --signingKeyAlias=candy --keyPassword=candycrush --keyStorePassword=candycrush
-
-      - name: Rename APK
-        run: |
-          find twa-project -name "*.apk" -exec cp {} ./CandyCrush-AdFree.apk \;
+          npm init -y
+          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest
+          npx cap init "Candy Crush" "com.coneborg.candycrush" --web-dir "."
+          npx cap add android
+          npx cap copy android
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
+          cd ..
+          cp android/app/build/outputs/apk/debug/app-debug.apk ./CandyCrush-AdFree.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
@@ -46,16 +42,17 @@ jobs:
           name: CandyCrush-AdFree-APK
           path: ./CandyCrush-AdFree.apk
 
-      - name: Create Release with APK
+      - name: Release APK
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master'
         with:
           tag_name: v1.0.0
           name: Candy Crush Ad-Free v1.0.0
           body: |
-            🍬 **Candy Crush Ad-Free Standalone Android APK**
-            - Sideload directly to Android phone
-            - 100% offline, zero ads, unlimited lives
+            🍬 **Candy Crush Standalone Android APK (Ad-Free)**
+            - Standalone native Android APK (works 100% offline)
+            - Unlimited lives & zero adverts
+            - Download `CandyCrush-AdFree.apk` below and install on Android
           files: ./CandyCrush-AdFree.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
