@@ -50,10 +50,13 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: github.ref == 'refs/heads/master'
         with:
-          tag_name: v1.0.0
-          name: Candy Crush Ad-Free v1.0.0
+          tag_name: v1.1.0
+          name: Candy Crush Ad-Free v1.1.0
           body: |
-            🍬 **Candy Crush Standalone Android APK (Ad-Free)**
+            🍬 **Candy Crush Standalone Android APK v1.1.0 (Ad-Free)**
+            - Improved procedural sound engine (chimes, clicks, zaps, bombs)
+            - Dynamic animations: laser beams, shockwaves, drop bounces, pops, rumble
+            - Fixed screen bounds and safe area insets for Android notch and navigation bar
             - Standalone native Android APK (works 100% offline)
             - Unlimited lives & zero adverts
             - Download `CandyCrush-AdFree.apk` below and install on Android
